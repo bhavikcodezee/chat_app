@@ -5,4 +5,5 @@ abstract class AppRoutes {
   static const String verificationScreen = "/VERIFICATION_SCREEN";
   static const String chatScreen = "/CHAT_SCREEN";
   static const String chatMemberScreen = "/CHAT_MEMBER_SCREEN";
+  static const String contactScreen = "/CONTACT_SCREEN";
 }

@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/app_assets.dart';
-import 'resgiter_controller.dart';
+import 'register_controller.dart';
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
@@ -44,10 +44,26 @@ class RegisterScreen extends StatelessWidget {
             ),
             Column(
               children: [
-                AppTextFiled(
-                  hintText: "Full Name",
-                  errorMessage: _con.fullNameError,
-                  onChanged: (val) => _con.fullName.value = val,
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextFiled(
+                        hintText: "First name",
+                        errorMessage: _con.firstNameError,
+                        onChanged: (val) => _con.firstName.value = val,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: AppTextFiled(
+                        hintText: "Last name",
+                        errorMessage: _con.lastNameError,
+                        onChanged: (val) => _con.lastName.value = val,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 AppTextFiled(

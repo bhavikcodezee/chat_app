@@ -36,9 +36,10 @@ class AppButton extends StatelessWidget {
             child: isLoading.value
                 ? const Center(
                     child: CircularProgressIndicator.adaptive(
-                    backgroundColor: Colors.white,
-                    strokeWidth: 5,
-                  ))
+                      backgroundColor: Colors.white,
+                      strokeWidth: 5,
+                    ),
+                  )
                 : Text(
                     text,
                     style: const TextStyle(

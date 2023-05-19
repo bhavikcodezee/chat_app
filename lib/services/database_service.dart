@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 
 class DatabaseService {
   final String? uid;
@@ -6,21 +7,21 @@ class DatabaseService {
 
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection("users");
-  final CollectionReference groupCollection =
-      FirebaseFirestore.instance.collection("groups");
+  final CollectionReference conversationCollection =
+      FirebaseFirestore.instance.collection("conversation");
 
 //saving the user data
   Future updateUserData(String fullName, String email) async {
     return await userCollection.doc(uid).set({
-      "fullName": fullName,
+      "full_name": fullName,
       "email": email,
       "groups": [],
-      "profilePic": "",
+      "profile_pic": "",
       "uid": uid,
     });
   }
 
-//getting user data
+  //getting user data
   Future gettingUserData(String email) async {
     QuerySnapshot snapshot =
         await userCollection.where("email", isEqualTo: email).get();
@@ -28,74 +29,67 @@ class DatabaseService {
     return snapshot;
   }
 
-  //get user group
-
-  Future getUserGroups() async {
-    return userCollection.doc(uid).snapshots();
+  //getting chats User data
+  Future<QuerySnapshot> getContactList(String email) async {
+    return userCollection.where("email", isNotEqualTo: email).get();
   }
 
   // create a group
-  Future createGroup(String userName, String id, String groupName) async {
-    DocumentReference documentReference = await groupCollection.add({
+  Future createConversation(
+      {required String userName,
+      required String uid,
+      required String groupName,
+      required List<String> contactsId}) async {
+    DocumentReference documentReference = await conversationCollection.add({
       "groupName": groupName,
       "groupIcon": "",
-      "admin": "${id}_$userName",
-      "members": [],
-      "groupId": "",
+      "isGroup": contactsId.isEmpty ? false : true,
+      "admin": uid,
+      "members": List<String>.from(contactsId),
+      "conversation_id": "",
       "recentMessage": "",
       "recentMessageSender": "",
     });
 
-    // update the members
     await documentReference.update({
-      "members": FieldValue.arrayUnion(["${uid}_$userName"]),
-      "groupId": documentReference.id,
+      "conversation_id": documentReference.id,
     });
 
-    DocumentReference userDocumentReference = userCollection.doc(uid);
-    return await userDocumentReference.update({
-      "groups": FieldValue.arrayUnion(["${documentReference.id}_$groupName"])
-    });
+    Get.back();
+    // DocumentReference userDocumentReference = userCollection.doc(uid);
+    // return await userDocumentReference.update({
+    //   "groups": FieldValue.arrayUnion(["${documentReference.id}_$groupName"])
+    // });
   }
 
-  //getting chat
-
-  Future getChats(String groupId) async {
-    return groupCollection
-        .doc(groupId)
+  //getting messages
+  Future getMessages(String conversationID) async {
+    return conversationCollection
+        .doc(conversationID)
         .collection("messages")
         .orderBy("time")
         .snapshots();
   }
 
   // getAdmin
-
   Future getGroupAdmin(String groupId) async {
-    DocumentReference d = groupCollection.doc(groupId);
+    DocumentReference d = conversationCollection.doc(groupId);
     DocumentSnapshot documentSnapshot = await d.get();
-
     return documentSnapshot["admin"];
   }
 
   // get group member
-
   Future getGroupMember(groupId) async {
-    return groupCollection.doc(groupId).snapshots();
+    return conversationCollection.doc(groupId).snapshots();
   }
 
   // send message
-
-  sendMessage(String groupId, Map<String, dynamic> chatMessageData) async {
-    groupCollection.doc(groupId).collection("messages").add(chatMessageData);
-    groupCollection.doc(groupId).update({
-      "recentMessage": chatMessageData["message"],
-      "recentMessageSender": chatMessageData["sender"],
-      "recentMessageTime": chatMessageData["time"].toString(),
-    });
-  }
-
-  searchByName(String groupName) {
-    return groupCollection.where("groupName", isEqualTo: groupName).get();
+  Future<void> sendMessage(
+      String conversationId, Map<String, dynamic> chatMessageData) async {
+    conversationCollection
+        .doc(conversationId)
+        .collection("messages")
+        .add(chatMessageData);
   }
 
   Future<bool> isUserJoined(
@@ -116,7 +110,8 @@ class DatabaseService {
       String groupId, String userName, String groupName) async {
     // doc reference
     DocumentReference userDocumentReference = userCollection.doc(uid);
-    DocumentReference groupDocumentReference = groupCollection.doc(groupId);
+    DocumentReference groupDocumentReference =
+        conversationCollection.doc(groupId);
 
     DocumentSnapshot documentSnapshot = await userDocumentReference.get();
     List<dynamic> groups = await documentSnapshot['groups'];

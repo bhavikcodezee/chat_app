@@ -36,6 +36,7 @@ class AppTextFiled extends StatelessWidget {
             obscureText: obscureText,
             decoration: InputDecoration(
               border: InputBorder.none,
+              isDense: true,
               hintText: hintText,
             ),
           ),

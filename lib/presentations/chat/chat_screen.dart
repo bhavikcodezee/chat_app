@@ -1,15 +1,12 @@
-import 'dart:developer';
-import 'package:chat_app/services/database_service.dart';
+import 'package:chat_app/presentations/chat/chat_controller.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'chat_controller.dart';
-
 class ChatScreen extends StatelessWidget {
   ChatScreen({super.key});
 
-  final ChatController _controller = Get.put(ChatController());
+  final ChatController _con = Get.put(ChatController());
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +14,19 @@ class ChatScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
-        title: Text(_controller.groupName),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.whiteColor,
+          ),
+        ),
+        title: const Text(
+          "_con.groupName",
+          style: TextStyle(
+            color: AppColors.whiteColor,
+          ),
+        ),
         backgroundColor: AppColors.accentColor,
         actions: [
           IconButton(
@@ -25,9 +34,9 @@ class ChatScreen extends StatelessWidget {
               // Get.toNamed(
               //   AppRoutes.groupInfo,
               //   arguments: [
-              //     _controller.groupId,
-              //     _controller.groupName,
-              //     _controller.admin,
+              //     _con.groupId,
+              //     _con.groupName,
+              //     _con.admin,
               //   ],
               // );
             },
@@ -35,59 +44,43 @@ class ChatScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Stack(
-        children: [
-          chatMessage(),
-          Container(
-            alignment: Alignment.bottomCenter,
-            width: MediaQuery.of(context).size.width,
+      bottomSheet: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        color: Colors.grey[700],
+        child: Row(children: [
+          Expanded(
+              child: TextFormField(
+            controller: _con.messageController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: "Send a message...",
+              hintStyle: TextStyle(color: Colors.white, fontSize: 16),
+              border: InputBorder.none,
+            ),
+          )),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: () => _con.sendMessage(),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              width: MediaQuery.of(context).size.width,
-              color: Colors.grey[700],
-              child: Row(children: [
-                Expanded(
-                    child: TextFormField(
-                  controller: _controller.messageController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: "Send a message...",
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16),
-                    border: InputBorder.none,
-                  ),
-                )),
-                const SizedBox(
-                  width: 12,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    sendMessage();
-                  },
-                  child: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentColor,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Center(
-                        child: Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    )),
-                  ),
-                )
-              ]),
+              height: 50,
+              width: 50,
+              decoration: const BoxDecoration(
+                  color: AppColors.accentColor, shape: BoxShape.circle),
+              child: const Icon(
+                Icons.send,
+                color: Colors.white,
+              ),
             ),
           )
-        ],
+        ]),
       ),
+      body: messages(),
     );
   }
 
-  chatMessage() {
+  Widget messages() {
     return StreamBuilder(
-      stream: _controller.chats,
+      stream: _con.messages,
       builder: (context, AsyncSnapshot snapshot) {
         return snapshot.hasData
             ? ListView.builder(
@@ -95,41 +88,27 @@ class ChatScreen extends StatelessWidget {
                 physics: const ClampingScrollPhysics(),
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
-                  log(snapshot.data.docs[index]["sender"]);
-
-                  if (!_controller.senderList
+                  if (!_con.senderList
                       .contains(snapshot.data.docs[index]["sender"])) {
-                    _controller.senderList
-                        .add(snapshot.data.docs[index]["sender"]);
+                    _con.senderList.add(snapshot.data.docs[index]["sender"]);
                   }
-
-                  log("lenght${_controller.senderList.length}");
                   return MessageTile(
                     message: snapshot.data.docs[index]["message"],
                     sender: snapshot.data.docs[index]["sender"],
-                    sentByMe: _controller.userName ==
-                        snapshot.data.docs[index]["sender"],
+                    sentByMe: true, //TODO
                     index: index,
-                    sanderList: _controller.senderList,
+                    sanderList: _con.senderList,
                   );
                 },
               )
-            : Container();
+            : const Center(
+                child: CircularProgressIndicator.adaptive(
+                  backgroundColor: Colors.white,
+                  strokeWidth: 5,
+                ),
+              );
       },
     );
-  }
-
-  sendMessage() {
-    if (_controller.messageController.text.isNotEmpty) {
-      Map<String, dynamic> chatMessageMap = {
-        "message": _controller.messageController.text,
-        "sender": _controller.userName,
-        "time": DateTime.now().millisecondsSinceEpoch,
-      };
-
-      DatabaseService().sendMessage(_controller.groupId, chatMessageMap);
-      _controller.messageController.clear();
-    }
   }
 }
 
@@ -152,16 +131,11 @@ class MessageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log(sender.length.toString());
     return Container(
-      padding: const EdgeInsets.only(
-        top: 4,
-        bottom: 4,
-        // left: sentByMe ? 0 : 20,
-        // right: sentByMe ? 20 : 0,
-      ),
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
       alignment: sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
+        constraints: BoxConstraints(maxWidth: Get.width * 0.65),
         margin: sentByMe
             ? const EdgeInsets.only(left: 20)
             : const EdgeInsets.only(right: 20),
@@ -172,10 +146,9 @@ class MessageTile extends StatelessWidget {
               ? const BorderRadius.only(
                   topLeft: Radius.circular(10),
                   bottomLeft: Radius.circular(10),
-                  // topRight: Radius.circular(10),
+                  topRight: Radius.circular(10),
                 )
               : const BorderRadius.only(
-                  // topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),
                   bottomRight: Radius.circular(10),
                 ),
@@ -196,9 +169,7 @@ class MessageTile extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-            SizedBox(
-              height: sentByMe ? 0 : 2,
-            ),
+            SizedBox(height: sentByMe ? 0 : 2),
             Text(
               message,
               textAlign: TextAlign.start,

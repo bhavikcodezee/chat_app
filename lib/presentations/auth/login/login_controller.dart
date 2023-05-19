@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/services/database_service.dart';
+import 'package:chat_app/utils/app_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -48,27 +49,27 @@ class LoginController extends GetxController {
     if (validation()) {
       isLoading.value = true;
       try {
-        User user = (await firebaseAuth
-            .signInWithEmailAndPassword(
-                email: email.value, password: password.value)
-            .then((value) async {
-          isLoading.value = false;
+        UserCredential userCredential =
+            await firebaseAuth.signInWithEmailAndPassword(
+                email: email.value, password: password.value);
+        log(userCredential.user.toString());
+        QuerySnapshot snapshot =
+            await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+                .gettingUserData(email.value);
 
-          QuerySnapshot snapshot =
-              await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-                  .gettingUserData(email.value);
+        LocalStorage.saveLocalData(
+          isLogin: true,
+          name: snapshot.docs[0]['fullName'],
+          email: email.value,
+          userID: FirebaseAuth.instance.currentUser?.uid ?? "",
+        );
 
-          await LocalStorage.saveUserName(snapshot.docs[0]['fullName']);
-          await LocalStorage.saveEmailName(email.value);
-          await LocalStorage.saveUserLoggedInStatus(true);
-
-          await Get.offAllNamed(AppRoutes.chatMemberScreen);
-          return value.user!;
-        }));
-        log(user.toString());
         isLoading.value = false;
+        await Get.offAllNamed(AppRoutes.chatMemberScreen);
       } on FirebaseAuthException catch (e) {
         isLoading.value = false;
+        Get.snackbar("Error", e.message ?? "",
+            backgroundColor: Colors.red, colorText: AppColors.whiteColor);
         log(e.toString());
       }
     }
@@ -100,13 +101,19 @@ class LoginController extends GetxController {
   Future<void> handleGoogleSignIn() async {
     try {
       googleSignInAccount = await _googleSignIn.signIn();
+      OAuthCredential oAuthCredential = GoogleAuthProvider.credential(
+          accessToken:
+              (await googleSignInAccount?.authentication)?.accessToken ?? "",
+          idToken: (await googleSignInAccount?.authentication)?.idToken);
+      firebaseAuth.signInWithCredential(oAuthCredential);
+      LocalStorage.saveLocalData(
+        isLogin: true,
+        name: googleSignInAccount?.displayName ?? "",
+        email: googleSignInAccount?.email ?? "",
+        userID: googleSignInAccount?.id ?? "",
+      );
       if (googleSignInAccount != null) {
-        Get.offNamed(AppRoutes.chatMemberScreen, arguments: {
-          "displayName": googleSignInAccount?.displayName ?? "",
-          "email": googleSignInAccount?.email ?? "",
-          "id": googleSignInAccount?.id ?? "",
-          "type": "google",
-        });
+        Get.offNamed(AppRoutes.chatMemberScreen);
       }
     } catch (error) {
       log(error.toString());

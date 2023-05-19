@@ -2,47 +2,40 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_storage/get_storage.dart';
 
 class Pref {
-  static String userLoggedInKey = "LOGGEDINKEY";
-  static String useNameKey = "USERNAMEKEY";
-  static String userEmailKey = "USEREMAILKEY";
+  static String isLogin = "IS_LOGIN";
+  static String userName = "USER_NAME";
+  static String userEmail = "USER_EMAIL";
+  static String userId = "USER_ID";
 }
 
 class LocalStorage {
   static GetStorage gs = GetStorage();
 
-  static bool userLoggedInKey = false;
-  static String useNameKey = "";
-  static String userEmailKey = "";
+  static bool isLogin = false;
+  static String userName = "";
+  static String userEmail = "";
+  static String userId = "";
 
-  static saveUserLoggedInStatus(bool value) async {
-    gs.write(Pref.userLoggedInKey, value);
-    userLoggedInKey = gs.read(Pref.userLoggedInKey);
-    loadLocalData();
+  static saveLocalData(
+      {required bool isLogin,
+      required String name,
+      required String email,
+      required String userID}) {
+    gs.write(Pref.isLogin, isLogin);
+    gs.write(Pref.userName, name);
+    gs.write(Pref.userEmail, email);
+    gs.write(Pref.userId, userID);
+    isLogin = gs.read(Pref.isLogin) ?? false;
+    userEmail = gs.read(Pref.userEmail) ?? "";
+    userName = gs.read(Pref.userName) ?? "";
+    userId = gs.read(Pref.userId) ?? "";
   }
-
-  static saveUserName(String value) async {
-    gs.write(Pref.useNameKey, value);
-    useNameKey = gs.read(Pref.useNameKey);
-    loadLocalData();
-  }
-
-  static saveEmailName(String value) async {
-    gs.write(Pref.userEmailKey, value);
-    userEmailKey = gs.read(Pref.userEmailKey);
-    loadLocalData();
-  }
-
-  // static getUserLoggedInStatus(value) async {
-  //   GetStorage gs = GetStorage();
-  //   gs.write(Pref.userLoggedInKey, value);
-  //   userLoggedInKey = gs.read(Pref.userLoggedInKey);
-  //   loadLocalData();
-  // }
 
   static loadLocalData() {
-    userLoggedInKey = gs.read(Pref.userLoggedInKey) ?? false;
-    userEmailKey = gs.read(Pref.userEmailKey) ?? "";
-    useNameKey = gs.read(Pref.useNameKey) ?? "";
+    isLogin = gs.read(Pref.isLogin) ?? false;
+    userEmail = gs.read(Pref.userEmail) ?? "";
+    userName = gs.read(Pref.userName) ?? "";
+    userId = gs.read(Pref.userId) ?? "";
   }
 
   static logout() {

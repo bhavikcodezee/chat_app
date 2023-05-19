@@ -4,6 +4,7 @@ import 'package:chat_app/presentations/auth/splash_screen.dart';
 import 'package:chat_app/presentations/auth/verification/verification_screen.dart';
 import 'package:chat_app/presentations/chat/chat_screen.dart';
 import 'package:chat_app/presentations/chat_member/chat_member_screen.dart';
+import 'package:chat_app/presentations/contact/contact_screen.dart';
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:get/get.dart';
 
@@ -32,6 +33,10 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.registerScreen,
       page: () => RegisterScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.contactScreen,
+      page: () => ContactScreen(),
     ),
   ];
 }

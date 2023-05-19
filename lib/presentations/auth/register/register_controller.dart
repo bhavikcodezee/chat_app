@@ -12,8 +12,10 @@ class RegisterController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   GoogleSignInAccount? googleSignInAccount;
 
-  RxString fullName = "".obs;
-  RxString fullNameError = "".obs;
+  RxString firstName = "".obs;
+  RxString firstNameError = "".obs;
+  RxString lastName = "".obs;
+  RxString lastNameError = "".obs;
   RxString email = "".obs;
   RxString emailError = "".obs;
   RxString password = "".obs;
@@ -24,15 +26,24 @@ class RegisterController extends GetxController {
 
   bool validation() {
     RxBool isValid = true.obs;
-    fullNameError.value = "";
+    firstNameError.value = "";
+    lastNameError.value = "";
     emailError.value = "";
     passwordError.value = "";
 
-    if (fullName.isEmpty) {
-      fullNameError.value = "Enter valid Full Name";
+    if (firstName.isEmpty) {
+      firstNameError.value = "Enter valid first name";
       isValid.value = false;
-    } else if (fullName.value.length < 3) {
-      fullNameError.value = "Full Name must be at least 3 characters long";
+    } else if (firstName.value.length < 3) {
+      firstNameError.value = "First name must be at least 3 characters long";
+      isValid.value = false;
+    }
+
+    if (lastName.isEmpty) {
+      lastNameError.value = "Enter valid first name";
+      isValid.value = false;
+    } else if (lastName.value.length < 3) {
+      lastNameError.value = "First name must be at least 3 characters long";
       isValid.value = false;
     }
 
@@ -61,16 +72,20 @@ class RegisterController extends GetxController {
                 email: email.value, password: password.value)
             .then((value) async {
           isLoading.value = false;
-          await LocalStorage.saveUserName(fullName.value);
-          await LocalStorage.saveEmailName(email.value);
-          await LocalStorage.saveUserLoggedInStatus(true);
+
+          LocalStorage.saveLocalData(
+            isLogin: true,
+            name: "${firstName.value} ${lastName.value}",
+            email: email.value,
+            userID: value.user?.uid ?? "",
+          );
           Get.offAllNamed(AppRoutes.chatMemberScreen);
           return value.user;
         }));
 
         if (user != null) {
-          await DatabaseService(uid: user.uid)
-              .updateUserData(fullName.value, email.value);
+          await DatabaseService(uid: user.uid).updateUserData(
+              "${firstName.value} ${lastName.value}", email.value);
         }
         isLoading.value = false;
       } on FirebaseAuthException catch (e) {
@@ -83,13 +98,20 @@ class RegisterController extends GetxController {
   Future<void> handleGoogleSignIn() async {
     try {
       googleSignInAccount = await _googleSignIn.signIn();
+      OAuthCredential oAuthCredential = GoogleAuthProvider.credential(
+          accessToken:
+              (await googleSignInAccount?.authentication)?.accessToken ?? "",
+          idToken: (await googleSignInAccount?.authentication)?.idToken);
+      firebaseAuth.signInWithCredential(oAuthCredential);
+      LocalStorage.saveLocalData(
+        isLogin: true,
+        name: googleSignInAccount?.displayName ?? "",
+        email: googleSignInAccount?.email ?? "",
+        userID: googleSignInAccount?.id ?? "",
+      );
+
       if (googleSignInAccount != null) {
-        Get.offNamed(AppRoutes.chatMemberScreen, arguments: {
-          "displayName": googleSignInAccount?.displayName ?? "",
-          "email": googleSignInAccount?.email ?? "",
-          "id": googleSignInAccount?.id ?? "",
-          "type": "google",
-        });
+        Get.offNamed(AppRoutes.chatMemberScreen);
       }
     } catch (error) {
       log(error.toString());

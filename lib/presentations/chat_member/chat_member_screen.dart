@@ -1,8 +1,7 @@
 import 'package:chat_app/presentations/chat_member/chat_member_controller.dart';
+import 'package:chat_app/presentations/chat_member/components/drawer_screen.dart';
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/utils/app_colors.dart';
-import 'package:chat_app/widget/app_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,9 +11,16 @@ class ChatMemberScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _con.scaffoldKey,
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+            onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
+            icon: const Icon(
+              Icons.menu,
+              color: AppColors.whiteColor,
+            )),
         backgroundColor: AppColors.accentColor,
         title: const Text(
           "Chat",
@@ -24,80 +30,19 @@ class ChatMemberScreen extends StatelessWidget {
           ),
         ),
       ),
-      drawer: Drawer(
-          child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 50),
-        children: <Widget>[
-          Icon(
-            Icons.account_circle,
-            size: 150,
-            color: Colors.grey[700],
-          ),
-          const SizedBox(height: 15),
-          Text(
-            _con.userName.value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _con.email.value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 30),
-          const Divider(height: 2),
-          ListTile(
-            onTap: () => Get.back(),
-            selectedColor: AppColors.accentColor,
-            selected: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            leading: const Icon(Icons.group),
-            title: const Text(
-              "Groups",
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-          ListTile(
-            onTap: () async {
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text("Logout"),
-                      content: const Text("Are you sure you want to logout?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text("No"),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            await FirebaseAuth.instance.signOut();
-                            Get.offNamedUntil(
-                                AppRoutes.loginScreen, (route) => false);
-                          },
-                          child: const Text("Yes"),
-                        ),
-                      ],
-                    );
-                  });
-            },
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text(
-              "Logout",
-              style: TextStyle(color: Colors.black),
-            ),
-          )
-        ],
-      )),
-      body: groupList(),
+      drawer: DrawerScreen(),
+      body: Obx(
+        () => _con.isLoading.value
+            ? const Center(
+                child: CircularProgressIndicator.adaptive(
+                  backgroundColor: Colors.white,
+                  strokeWidth: 5,
+                ),
+              )
+            : chatMembersList(),
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => createGroupDialog(context),
+        onPressed: () => Get.toNamed(AppRoutes.contactScreen),
         elevation: 0,
         backgroundColor: AppColors.accentColor,
         child: const Icon(
@@ -109,86 +54,58 @@ class ChatMemberScreen extends StatelessWidget {
     );
   }
 
-  groupList() {
-    return StreamBuilder(
-      stream: _con.groups,
-      builder: (context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data['groups'] != null) {
-            if (snapshot.data['groups'].length != 0) {
-              return ListView.builder(
-                itemCount: snapshot.data['groups'].length,
-                itemBuilder: (context, index) {
-                  int reverseIndex = snapshot.data['groups'].length - index - 1;
-                  return GroupTile(
-                      groupId:
-                          _con.getId(snapshot.data['groups'][reverseIndex]),
-                      groupName:
-                          _con.getName(snapshot.data['groups'][reverseIndex]),
-                      userName: snapshot.data['fullName']);
-                },
-              );
-            } else {
-              return noGroupWidget();
-            }
-          } else {
-            return noGroupWidget();
-          }
-        } else {
-          return const Center(
-            child: CircularProgressIndicator.adaptive(),
-          );
-        }
-      },
-    );
-  }
-
-  Future<void> createGroupDialog(BuildContext context) async {
-    showDialog(
-        barrierDismissible: true,
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Create Group",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+  Widget chatMembersList() {
+    return Obx(
+      () => _con.isLoading.value
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(),
+            )
+          : _con.userList.isEmpty
+              ? const Center(child: Text("No conversation found"))
+              : ListView.builder(
+                  itemCount: _con.userList.length,
+                  itemBuilder: (context, index) {
+                    return const SizedBox();
+                    // return GroupTile(
+                    //     groupId:
+                    //         _con.getId(snapshot.data['groups'][reverseIndex]),
+                    //     groupName:
+                    //         _con.getName(snapshot.data['groups'][reverseIndex]),
+                    //     userName: snapshot.data['fullName']);
+                  },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Get.back(),
-                )
-              ],
-            ),
-            content: TextField(
-              onChanged: (val) => _con.groupName.value = val,
-              style: const TextStyle(color: Colors.black),
-              decoration: InputDecoration(
-                  hintText: "Name",
-                  enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: AppColors.accentColor),
-                      borderRadius: BorderRadius.circular(10)),
-                  errorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.circular(10)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: AppColors.accentColor),
-                      borderRadius: BorderRadius.circular(10))),
-            ),
-            actions: [
-              AppButton(
-                onPressed: () => _con.createGroup(context),
-                text: "Create",
-                isLoading: _con.isLoading,
-              ),
-            ],
-          );
-        });
+    );
+    // return StreamBuilder(
+    //   stream: _con.stream,
+    //   builder: (context, AsyncSnapshot snapshot) {
+    //     if (snapshot.hasData) {
+    //       if (snapshot.data['groups'] != null) {
+    //         if (snapshot.data['groups'].length != 0) {
+    //           return ListView.builder(
+    //             itemCount: snapshot.data['groups'].length,
+    //             itemBuilder: (context, index) {
+    //               int reverseIndex = snapshot.data['groups'].length - index - 1;
+    //               return GroupTile(
+    //                   groupId:
+    //                       _con.getId(snapshot.data['groups'][reverseIndex]),
+    //                   groupName:
+    //                       _con.getName(snapshot.data['groups'][reverseIndex]),
+    //                   userName: snapshot.data['fullName']);
+    //             },
+    //           );
+    //         } else {
+    //           return noGroupWidget();
+    //         }
+    //       } else {
+    //         return noGroupWidget();
+    //       }
+    //     } else {
+    //       return const Center(
+    //         child: CircularProgressIndicator.adaptive(),
+    //       );
+    //     }
+    //   },
+    // );
   }
 
   Widget noGroupWidget() {
@@ -199,7 +116,8 @@ class ChatMemberScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () => createGroupDialog(Get.context!),
+            onTap: () {},
+            // onTap: () => createGroupDialog(Get.context!),
             child: Icon(
               Icons.add_circle,
               color: Colors.grey[700],
