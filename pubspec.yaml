@@ -21,6 +21,8 @@ dependencies:
   fluttertoast: ^8.2.1
   flutter_svg: ^2.0.5
   google_sign_in: ^6.1.0
+  get_storage: ^2.1.1
+  sms_autofill: ^2.3.0
 
 dev_dependencies:
   flutter_test:

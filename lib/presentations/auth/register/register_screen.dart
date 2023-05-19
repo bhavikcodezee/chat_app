@@ -1,6 +1,3 @@
-import 'package:chat_app/presentations/auth/login/login_controller.dart';
-import 'package:chat_app/routes/app_routes.dart';
-import 'package:chat_app/utils/app_assets.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:chat_app/widget/app_button.dart';
 import 'package:chat_app/widget/app_textfield.dart';
@@ -9,9 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
-  final LoginController _con = Get.put(LoginController());
+import '../../../utils/app_assets.dart';
+import 'resgiter_controller.dart';
+
+class RegisterScreen extends StatelessWidget {
+  RegisterScreen({super.key});
+
+  final RegisterController _con = Get.put(RegisterController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,14 +29,13 @@ class LoginScreen extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const SizedBox(),
             const Text(
-              "Login",
+              "Register",
               style: TextStyle(
                 fontSize: 40,
                 color: AppColors.accentColor,
@@ -44,11 +45,17 @@ class LoginScreen extends StatelessWidget {
             Column(
               children: [
                 AppTextFiled(
+                  hintText: "Full Name",
+                  errorMessage: _con.fullNameError,
+                  onChanged: (val) => _con.fullName.value = val,
+                ),
+                const SizedBox(height: 10),
+                AppTextFiled(
                   hintText: "Email",
                   errorMessage: _con.emailError,
                   onChanged: (val) => _con.email.value = val,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
                 AppTextFiled(
                   hintText: "Password",
                   obscureText: true,
@@ -57,43 +64,30 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
                 AppButton(
-                  onPressed: () => _con.onLogin(),
                   width: Get.width * 0.5,
-                  text: "Sign In",
+                  onPressed: () => _con.onRegister(),
+                  text: "Sign up",
                   isLoading: _con.isLoading,
                 ),
-                TextButton(
-                  onPressed: () => _con.sendOTP("+91 9824871769"),
-                  child: const Text(
-                    "Forgot password",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.accentColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 Text.rich(
                   TextSpan(
-                    text: "Don't have an account?",
+                    text: "Already have an account!",
                     children: [
                       TextSpan(
-                        text: " Sign Up",
+                        text: " Login now",
                         style: const TextStyle(
                           color: AppColors.accentColor,
                           fontWeight: FontWeight.w500,
                         ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Get.toNamed(AppRoutes.registerScreen);
-                          },
+                          ..onTap = () => Get.back(),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(

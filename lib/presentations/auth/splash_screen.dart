@@ -12,11 +12,19 @@ class SplashScreen extends StatelessWidget {
     Get.put(SplashController());
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
-      body: Center(
+      body: Container(
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+            gradient: RadialGradient(
+          colors: [
+            Colors.white,
+            Colors.green,
+          ],
+        )),
         child: Image.asset(
           AppAssets.icon,
-          height: 100,
-          width: 100,
+          height: 150,
+          width: 150,
         ),
       ),
     );

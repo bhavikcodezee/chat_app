@@ -1,32 +1,40 @@
 import 'dart:developer';
 
-import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/services/database_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_app/utils/local_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../../utils/local_storage.dart';
+import '../../../routes/app_routes.dart';
 
-class LoginController extends GetxController {
-  //GOOGLE
+class RegisterController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   GoogleSignInAccount? googleSignInAccount;
 
+  RxString fullName = "".obs;
+  RxString fullNameError = "".obs;
   RxString email = "".obs;
   RxString emailError = "".obs;
-
   RxString password = "".obs;
   RxString passwordError = "".obs;
-
   RxBool isLoading = false.obs;
 
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   bool validation() {
     RxBool isValid = true.obs;
+    fullNameError.value = "";
+    emailError.value = "";
+    passwordError.value = "";
+
+    if (fullName.isEmpty) {
+      fullNameError.value = "Enter valid Full Name";
+      isValid.value = false;
+    } else if (fullName.value.length < 3) {
+      fullNameError.value = "Full Name must be at least 3 characters long";
+      isValid.value = false;
+    }
 
     if (!email.value.isEmail) {
       emailError.value = "Enter valid Email";
@@ -44,57 +52,32 @@ class LoginController extends GetxController {
     return isValid.value;
   }
 
-  Future<void> onLogin() async {
+  Future<void> onRegister() async {
     if (validation()) {
       isLoading.value = true;
       try {
-        User user = (await firebaseAuth
-            .signInWithEmailAndPassword(
+        User? user = (await firebaseAuth
+            .createUserWithEmailAndPassword(
                 email: email.value, password: password.value)
             .then((value) async {
           isLoading.value = false;
-
-          QuerySnapshot snapshot =
-              await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-                  .gettingUserData(email.value);
-
-          await LocalStorage.saveUserName(snapshot.docs[0]['fullName']);
+          await LocalStorage.saveUserName(fullName.value);
           await LocalStorage.saveEmailName(email.value);
           await LocalStorage.saveUserLoggedInStatus(true);
-
-          await Get.offAllNamed(AppRoutes.chatMemberScreen);
-          return value.user!;
+          Get.offAllNamed(AppRoutes.chatMemberScreen);
+          return value.user;
         }));
-        log(user.toString());
+
+        if (user != null) {
+          await DatabaseService(uid: user.uid)
+              .updateUserData(fullName.value, email.value);
+        }
         isLoading.value = false;
       } on FirebaseAuthException catch (e) {
         isLoading.value = false;
         log(e.toString());
       }
     }
-  }
-
-  Future<void> sendOTP(String phone) async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phone,
-      verificationCompleted: (PhoneAuthCredential credential) {},
-      verificationFailed: (FirebaseAuthException e) {
-        Get.snackbar(
-          'Error',
-          'Failed to send OTP: ${e.message}',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        Get.toNamed(AppRoutes.verificationScreen,
-            arguments: [phone, verificationId]);
-
-        log("phone $phone");
-        log("verificationId $verificationId");
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
   }
 
   Future<void> handleGoogleSignIn() async {
