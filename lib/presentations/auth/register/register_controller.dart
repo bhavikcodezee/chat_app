@@ -31,29 +31,31 @@ class RegisterController extends GetxController {
     emailError.value = "";
     passwordError.value = "";
 
-    if (firstName.isEmpty) {
-      firstNameError.value = "Enter valid first name";
+    if (firstName.trim().isEmpty) {
+      firstNameError.value = "Please enter first name";
       isValid.value = false;
     } else if (firstName.value.length < 3) {
       firstNameError.value = "First name must be at least 3 characters long";
       isValid.value = false;
     }
 
-    if (lastName.isEmpty) {
-      lastNameError.value = "Enter valid first name";
+    if (lastName.trim().isEmpty) {
+      lastNameError.value = "Please enter last name";
       isValid.value = false;
     } else if (lastName.value.length < 3) {
-      lastNameError.value = "First name must be at least 3 characters long";
+      lastNameError.value = "Last name must be at least 3 characters long";
+      isValid.value = false;
+    }
+    if (email.trim().isEmpty) {
+      emailError.value = "Please enter email";
+      isValid.value = false;
+    } else if (!email.value.isEmail) {
+      emailError.value = "Please enter valid email";
       isValid.value = false;
     }
 
-    if (!email.value.isEmail) {
-      emailError.value = "Enter valid Email";
-      isValid.value = false;
-    }
-
-    if (password.isEmpty) {
-      passwordError.value = "Enter valid Password";
+    if (password.trim().isEmpty) {
+      passwordError.value = "Please enter passsword";
       isValid.value = false;
     } else if (password.value.length < 8) {
       passwordError.value = "Password must be at least 8 characters long";
@@ -74,7 +76,7 @@ class RegisterController extends GetxController {
           isLoading.value = false;
 
           LocalStorage.saveLocalData(
-            isLogin: true,
+            isLoginFlag: true,
             name: "${firstName.value} ${lastName.value}",
             email: email.value,
             userID: value.user?.uid ?? "",
@@ -104,7 +106,7 @@ class RegisterController extends GetxController {
           idToken: (await googleSignInAccount?.authentication)?.idToken);
       firebaseAuth.signInWithCredential(oAuthCredential);
       LocalStorage.saveLocalData(
-        isLogin: true,
+        isLoginFlag: true,
         name: googleSignInAccount?.displayName ?? "",
         email: googleSignInAccount?.email ?? "",
         userID: googleSignInAccount?.id ?? "",

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class Pref {
@@ -11,31 +12,31 @@ class Pref {
 class LocalStorage {
   static GetStorage gs = GetStorage();
 
-  static bool isLogin = false;
-  static String userName = "";
-  static String userEmail = "";
-  static String userId = "";
+  static RxBool isLogin = false.obs;
+  static RxString userName = "".obs;
+  static RxString userEmail = "".obs;
+  static RxString userId = "".obs;
 
   static saveLocalData(
-      {required bool isLogin,
+      {required bool isLoginFlag,
       required String name,
       required String email,
       required String userID}) {
-    gs.write(Pref.isLogin, isLogin);
+    gs.write(Pref.isLogin, isLoginFlag);
     gs.write(Pref.userName, name);
     gs.write(Pref.userEmail, email);
     gs.write(Pref.userId, userID);
-    isLogin = gs.read(Pref.isLogin) ?? false;
-    userEmail = gs.read(Pref.userEmail) ?? "";
-    userName = gs.read(Pref.userName) ?? "";
-    userId = gs.read(Pref.userId) ?? "";
+    isLogin.value = gs.read(Pref.isLogin) ?? false;
+    userEmail.value = gs.read(Pref.userEmail) ?? "";
+    userName.value = gs.read(Pref.userName) ?? "";
+    userId.value = gs.read(Pref.userId) ?? "";
   }
 
   static loadLocalData() {
-    isLogin = gs.read(Pref.isLogin) ?? false;
-    userEmail = gs.read(Pref.userEmail) ?? "";
-    userName = gs.read(Pref.userName) ?? "";
-    userId = gs.read(Pref.userId) ?? "";
+    isLogin.value = gs.read(Pref.isLogin) ?? false;
+    userEmail.value = gs.read(Pref.userEmail) ?? "";
+    userName.value = gs.read(Pref.userName) ?? "";
+    userId.value = gs.read(Pref.userId) ?? "";
   }
 
   static logout() {

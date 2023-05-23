@@ -53,7 +53,7 @@ class ContactScreen extends StatelessWidget {
         ],
       ),
       bottomSheet: Obx(
-        () => _con.isGroup.value
+        () => _con.isGroup.value && _con.selectedContactList.isNotEmpty
             ? Padding(
                 padding: const EdgeInsets.all(15),
                 child: AppButton(
@@ -109,7 +109,7 @@ class ContactScreen extends StatelessWidget {
               AppButton(
                 onPressed: () => _con.createGroup(context),
                 text: "Create",
-                isLoading: _con.isLoading,
+                isLoading: _con.isCreateGroup,
               ),
             ],
           );
@@ -124,23 +124,39 @@ class ContactScreen extends StatelessWidget {
             )
           : _con.contactList.isEmpty
               ? const Center(child: Text("No contact found"))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  itemCount: _con.contactList.length,
-                  itemBuilder: (context, index) {
-                    return Obx(
-                      () => ContactTile(
-                        contactModel: _con.contactList[index],
-                        isGroup: _con.isGroup,
-                        isSelected: RxBool(
-                          _con.selectedContactList
-                              .contains(_con.contactList[index].uid),
-                        ),
-                        onChanged: (v) =>
-                            _con.onTap(_con.contactList[index].uid),
-                      ),
-                    );
-                  },
+              : Stack(
+                  children: [
+                    ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      itemCount: _con.contactList.length,
+                      itemBuilder: (context, index) {
+                        return Obx(
+                          () => ContactTile(
+                            contactModel: _con.contactList[index],
+                            isGroup: _con.isGroup,
+                            isAdmin: false,
+                            isSelected: RxBool(
+                              _con.selectedContactList
+                                  .contains(_con.contactList[index].uid),
+                            ),
+                            onTap: () {
+                              _con.createConversation(
+                                  context, _con.contactList[index]);
+                            },
+                            onChanged: (v) =>
+                                _con.onTap(_con.contactList[index].uid),
+                          ),
+                        );
+                      },
+                    ),
+                    if (_con.isCreateConversation.value)
+                      Container(
+                        height: Get.height,
+                        width: Get.width,
+                        color: AppColors.accentColor.withOpacity(0.5),
+                        child: const CircularProgressIndicator.adaptive(),
+                      )
+                  ],
                 ),
     );
   }

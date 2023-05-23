@@ -6,4 +6,6 @@ abstract class AppRoutes {
   static const String chatScreen = "/CHAT_SCREEN";
   static const String chatMemberScreen = "/CHAT_MEMBER_SCREEN";
   static const String contactScreen = "/CONTACT_SCREEN";
+  static const String groupMemberScreen = "/GROUP_MEMBER_SCREEN";
+  static const String editProfileScreen = "/EDIT_PROFILE_SCREEN";
 }

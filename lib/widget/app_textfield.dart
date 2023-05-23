@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 class AppTextFiled extends StatelessWidget {
   final String hintText;
+  final String? initalValue;
   final RxString errorMessage;
   final bool obscureText;
   final Function(String) onChanged;
@@ -11,6 +12,7 @@ class AppTextFiled extends StatelessWidget {
   const AppTextFiled({
     super.key,
     required this.hintText,
+    this.initalValue,
     this.obscureText = false,
     required this.errorMessage,
     required this.onChanged,
@@ -33,6 +35,7 @@ class AppTextFiled extends StatelessWidget {
           ),
           child: TextFormField(
             onChanged: onChanged,
+            initialValue: initalValue,
             obscureText: obscureText,
             decoration: InputDecoration(
               border: InputBorder.none,

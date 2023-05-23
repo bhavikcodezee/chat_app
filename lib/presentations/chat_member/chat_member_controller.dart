@@ -8,33 +8,29 @@ class ChatMemberController extends GetxController {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void onInit() {
-    gettingUser();
+    getConversation(false);
     super.onInit();
   }
 
-  Stream? stream;
+  Stream? conversationStrem;
   RxString email = "".obs;
   RxString userName = "".obs;
   RxString groupName = "".obs;
   RxBool isLoading = false.obs;
-  List userList = [];
 
-  // string manipulation
-  String getId(String res) {
-    return res.substring(0, res.indexOf("_"));
-  }
-
-  String getName(String res) {
-    return res.substring(res.indexOf("_") + 1);
-  }
-
-  Future<void> gettingUser() async {
+  Future<void> getConversation(bool filter) async {
     isLoading.value = true;
-    email.value = LocalStorage.userEmail;
-    userName.value = LocalStorage.userName;
-    userList = (await DatabaseService(uid: LocalStorage.userId)
-            .getContactList(email.value))
-        .docs;
+    email = LocalStorage.userEmail;
+    userName = LocalStorage.userName;
+    if (filter) {
+      conversationStrem =
+          (await DatabaseService(uid: LocalStorage.userId.value.trim())
+              .getConversationGroupList(LocalStorage.userId.value.trim()));
+    } else {
+      conversationStrem =
+          (await DatabaseService(uid: LocalStorage.userId.value.trim())
+              .getConversationList(LocalStorage.userId.value.trim()));
+    }
 
     isLoading.value = false;
   }

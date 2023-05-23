@@ -28,14 +28,18 @@ class LoginController extends GetxController {
 
   bool validation() {
     RxBool isValid = true.obs;
-
-    if (!email.value.isEmail) {
-      emailError.value = "Enter valid Email";
+    emailError.value = "";
+    passwordError.value = "";
+    if (email.value.trim().isEmpty) {
+      emailError.value = "Please enter email";
+      isValid.value = false;
+    } else if (!email.value.isEmail) {
+      emailError.value = "Please enter valid email";
       isValid.value = false;
     }
 
-    if (password.isEmpty) {
-      passwordError.value = "Enter valid Password";
+    if (password.trim().isEmpty) {
+      passwordError.value = "Please enter password";
       isValid.value = false;
     } else if (password.value.length < 8) {
       passwordError.value = "Password must be at least 8 characters long";
@@ -58,8 +62,8 @@ class LoginController extends GetxController {
                 .gettingUserData(email.value);
 
         LocalStorage.saveLocalData(
-          isLogin: true,
-          name: snapshot.docs[0]['fullName'],
+          isLoginFlag: true,
+          name: snapshot.docs[0]['full_name'],
           email: email.value,
           userID: FirebaseAuth.instance.currentUser?.uid ?? "",
         );
@@ -107,7 +111,7 @@ class LoginController extends GetxController {
           idToken: (await googleSignInAccount?.authentication)?.idToken);
       firebaseAuth.signInWithCredential(oAuthCredential);
       LocalStorage.saveLocalData(
-        isLogin: true,
+        isLoginFlag: true,
         name: googleSignInAccount?.displayName ?? "",
         email: googleSignInAccount?.email ?? "",
         userID: googleSignInAccount?.id ?? "",

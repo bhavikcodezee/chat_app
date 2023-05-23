@@ -1,5 +1,4 @@
 import 'package:chat_app/model/contact_model.dart';
-import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,25 +7,27 @@ class ContactTile extends StatelessWidget {
   final ContactModel contactModel;
   final RxBool isSelected;
   final RxBool isGroup;
+  final bool isAdmin;
   final Function(bool?) onChanged;
+  final Function()? onTap;
   const ContactTile({
     Key? key,
     required this.contactModel,
     required this.isGroup,
+    required this.isAdmin,
     required this.isSelected,
     required this.onChanged,
+    this.onTap,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => ListTile(
-        onTap: isGroup.value
-            ? () => onChanged(isSelected.value)
-            : () => Get.toNamed(AppRoutes.chatScreen,
-                arguments: [true, contactModel]),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.5, horizontal: 15),
+        onTap: isGroup.value ? () => onChanged(isSelected.value) : onTap,
         leading: CircleAvatar(
-          radius: 30,
+          radius: 25,
           backgroundColor: AppColors.accentColor,
           child: Text(
             contactModel.fullName[0].toUpperCase(),
@@ -39,13 +40,15 @@ class ContactTile extends StatelessWidget {
           contactModel.fullName,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        trailing: isGroup.value
-            ? Checkbox(
-                onChanged: onChanged,
-                activeColor: AppColors.accentColor,
-                value: isSelected.value,
-              )
-            : const SizedBox(),
+        trailing: isAdmin
+            ? const Text("Admin")
+            : isGroup.value
+                ? Checkbox(
+                    onChanged: onChanged,
+                    activeColor: AppColors.accentColor,
+                    value: isSelected.value,
+                  )
+                : const SizedBox(),
       ),
     );
   }

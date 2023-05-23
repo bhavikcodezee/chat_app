@@ -6,7 +6,7 @@ class SplashController extends GetxController {
   @override
   void onInit() {
     Future.delayed(const Duration(seconds: 3), () {
-      Get.offAllNamed(LocalStorage.isLogin
+      Get.offAllNamed(LocalStorage.isLogin.value
           ? AppRoutes.chatMemberScreen
           : AppRoutes.loginScreen);
     });
