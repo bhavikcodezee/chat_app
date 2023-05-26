@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:chat_app/presentations/edit_profile/edit_profile_controller.dart';
+import 'package:chat_app/widget/app_bar.dart';
 import 'package:chat_app/widget/app_button.dart';
 import 'package:chat_app/widget/app_textfield.dart';
 import 'package:flutter/material.dart';
@@ -12,23 +15,8 @@ class EditProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.whiteColor,
-          ),
-        ),
-        title: const Text(
-          "Edit Profile",
-          style: TextStyle(
-            color: AppColors.whiteColor,
-          ),
-        ),
-        backgroundColor: AppColors.accentColor,
+      appBar: appBar(
+        title: "Edit Profile",
       ),
       body: Obx(
         () => _con.isLoading.value
@@ -41,6 +29,83 @@ class EditProfileScreen extends StatelessWidget {
             : ListView(
                 padding: const EdgeInsets.all(15),
                 children: [
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Obx(
+                          () => CircleAvatar(
+                            radius: 50,
+                            backgroundColor: AppColors.primaryColor,
+                            child: _con.url.isEmpty
+                                ? _con.selectedProfile.isEmpty
+                                    ? const Icon(
+                                        Icons.person,
+                                        color: AppColors.whiteColor,
+                                        size: 50,
+                                      )
+                                    : ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        child: Image.file(
+                                          File(_con.selectedProfile.value),
+                                        ),
+                                      )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: Image.network(_con.url.value),
+                                  ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Get.bottomSheet(
+                              backgroundColor: AppColors.whiteColor,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  topRight: Radius.circular(15),
+                                ),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    onTap: () => _con.pickImage(false),
+                                    leading: const Icon(
+                                      Icons.camera,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    title: const Text("Camera"),
+                                  ),
+                                  ListTile(
+                                    onTap: () => _con.pickImage(true),
+                                    leading: const Icon(
+                                      Icons.image,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    title: const Text("Gallery"),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                          child: const CircleAvatar(
+                            backgroundColor: AppColors.accentColor,
+                            radius: 15,
+                            child: Icon(
+                              Icons.edit,
+                              color: AppColors.whiteColor,
+                              size: 15,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   AppTextFiled(
                     hintText: "First name",
                     initalValue: _con.firstName.value,

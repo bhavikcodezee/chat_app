@@ -1,6 +1,6 @@
 import 'package:chat_app/presentations/chat/group_member/group_member_controller.dart';
 import 'package:chat_app/presentations/contact/components/contact_tile.dart';
-import 'package:chat_app/utils/app_colors.dart';
+import 'package:chat_app/widget/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,32 +10,8 @@ class GroupMemberScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.whiteColor,
-          ),
-        ),
-        title: const Text(
-          "Participants",
-          style: TextStyle(
-            color: AppColors.whiteColor,
-          ),
-        ),
-        // actions: [
-        //   IconButton(
-        //     onPressed: () => Get.toNamed(AppRoutes.contactScreen),
-        //     icon: const Icon(
-        //       Icons.add,
-        //       color: AppColors.whiteColor,
-        //     ),
-        //   ),
-        // ],
-        backgroundColor: AppColors.accentColor,
+      appBar: appBar(
+        title: "Participants",
       ),
       body: Obx(
         () => _con.isLoading.value

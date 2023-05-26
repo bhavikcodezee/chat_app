@@ -28,7 +28,7 @@ class ContactTile extends StatelessWidget {
         onTap: isGroup.value ? () => onChanged(isSelected.value) : onTap,
         leading: CircleAvatar(
           radius: 25,
-          backgroundColor: AppColors.accentColor,
+          backgroundColor: AppColors.primaryColor,
           child: Text(
             contactModel.fullName[0].toUpperCase(),
             textAlign: TextAlign.center,
@@ -45,7 +45,7 @@ class ContactTile extends StatelessWidget {
             : isGroup.value
                 ? Checkbox(
                     onChanged: onChanged,
-                    activeColor: AppColors.accentColor,
+                    activeColor: AppColors.primaryColor,
                     value: isSelected.value,
                   )
                 : const SizedBox(),

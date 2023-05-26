@@ -4,6 +4,7 @@ import 'package:chat_app/presentations/chat_member/components/drawer_screen.dart
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:chat_app/utils/local_storage.dart';
+import 'package:chat_app/widget/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,25 +15,16 @@ class ChatMemberScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _con.scaffoldKey,
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
+      appBar: appBar(
+        title: "Chats",
         leading: IconButton(
             onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
             icon: const Icon(
               Icons.menu,
               color: AppColors.whiteColor,
             )),
-        backgroundColor: AppColors.accentColor,
-        title: const Text(
-          "Chats",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
-      drawer: DrawerScreen(),
+      drawer: const DrawerScreen(),
       body: Obx(
         () => _con.isLoading.value
             ? const Center(
@@ -150,7 +142,7 @@ class ConversationTile extends StatelessWidget {
       ]),
       leading: CircleAvatar(
         radius: 25,
-        backgroundColor: AppColors.accentColor,
+        backgroundColor: AppColors.primaryColor,
         child: Icon(
           isGroup ? Icons.group : Icons.person,
           color: AppColors.whiteColor,

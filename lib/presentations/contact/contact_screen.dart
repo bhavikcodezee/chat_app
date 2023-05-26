@@ -1,6 +1,7 @@
 import 'package:chat_app/presentations/contact/components/contact_tile.dart';
 import 'package:chat_app/presentations/contact/contact_controller.dart';
 import 'package:chat_app/utils/app_colors.dart';
+import 'package:chat_app/widget/app_bar.dart';
 import 'package:chat_app/widget/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,24 +12,8 @@ class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.whiteColor,
-          ),
-        ),
-        backgroundColor: AppColors.accentColor,
-        title: const Text(
-          "Contact",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: appBar(
+        title: "Contact",
         actions: [
           Obx(
             () => _con.isGroup.value
@@ -154,7 +139,9 @@ class ContactScreen extends StatelessWidget {
                         height: Get.height,
                         width: Get.width,
                         color: AppColors.accentColor.withOpacity(0.5),
-                        child: const CircularProgressIndicator.adaptive(),
+                        child: const Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
                       )
                   ],
                 ),

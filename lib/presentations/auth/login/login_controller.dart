@@ -66,6 +66,7 @@ class LoginController extends GetxController {
           name: snapshot.docs[0]['full_name'],
           email: email.value,
           userID: FirebaseAuth.instance.currentUser?.uid ?? "",
+          image: snapshot.docs[0]['profile_pic'],
         );
 
         isLoading.value = false;
@@ -115,6 +116,7 @@ class LoginController extends GetxController {
         name: googleSignInAccount?.displayName ?? "",
         email: googleSignInAccount?.email ?? "",
         userID: googleSignInAccount?.id ?? "",
+        image: googleSignInAccount?.photoUrl ?? "",
       );
       if (googleSignInAccount != null) {
         Get.offNamed(AppRoutes.chatMemberScreen);

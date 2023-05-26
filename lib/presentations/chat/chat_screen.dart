@@ -2,6 +2,7 @@ import 'package:chat_app/presentations/chat/chat_controller.dart';
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:chat_app/utils/local_storage.dart';
+import 'package:chat_app/widget/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
@@ -13,38 +14,20 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.whiteColor,
-          ),
-        ),
-        title: Text(
-          _con.contactModel?.fullName ?? "",
-          style: const TextStyle(
-            color: AppColors.whiteColor,
-          ),
-        ),
-        actions: [
-          if (_con.contactModel?.isGroup ?? false)
-            IconButton(
-              onPressed: () => Get.toNamed(AppRoutes.groupMemberScreen,
-                  arguments: _con.contactModel),
-              icon: const Icon(
-                Icons.info,
-                color: AppColors.whiteColor,
-              ),
+      appBar: appBar(title: _con.contactModel?.fullName ?? "", actions: [
+        if (_con.contactModel?.isGroup ?? false)
+          IconButton(
+            onPressed: () => Get.toNamed(AppRoutes.groupMemberScreen,
+                arguments: _con.contactModel),
+            icon: const Icon(
+              Icons.info,
+              color: AppColors.whiteColor,
             ),
-        ],
-        backgroundColor: AppColors.accentColor,
-      ),
+          ),
+      ]),
       bottomSheet: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        color: Colors.grey[700],
+        color: AppColors.primaryColor,
         child: Row(children: [
           Expanded(
               child: TextFormField(
@@ -169,7 +152,7 @@ class MessageTile extends StatelessWidget {
                     topRight: Radius.circular(10),
                     bottomRight: Radius.circular(10),
                   ),
-            color: sentByMe ? AppColors.accentColor : AppColors.greyColor,
+            color: sentByMe ? AppColors.accentColor : AppColors.primaryColor,
           ),
           child: Column(
             crossAxisAlignment:

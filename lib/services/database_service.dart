@@ -11,11 +11,15 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("conversation");
 
   //SAVE/UPDATE USER DATA
-  Future updateUserData(String fullName, String email) async {
+  Future updateUserData({
+    required String fullName,
+    required String email,
+    String? profilePic,
+  }) async {
     return await userCollection.doc(uid).set({
       "full_name": fullName,
       "email": email,
-      "profile_pic": "",
+      "profile_pic": profilePic,
       "uid": uid,
     });
   }

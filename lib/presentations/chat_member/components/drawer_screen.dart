@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DrawerScreen extends StatelessWidget {
-  DrawerScreen({super.key});
-
-  final ChatMemberController _con = Get.put(ChatMemberController());
+  const DrawerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,26 +15,40 @@ class DrawerScreen extends StatelessWidget {
         () => ListView(
           padding: const EdgeInsets.symmetric(vertical: 50),
           children: <Widget>[
-            Icon(
-              Icons.account_circle,
-              size: 100,
-              color: Colors.grey[700],
+            Obx(
+              () => CircleAvatar(
+                radius: 50,
+                backgroundColor: AppColors.primaryColor,
+                child: LocalStorage.userImage.isEmpty
+                    ? const Icon(
+                        Icons.person,
+                        color: AppColors.whiteColor,
+                        size: 50,
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image.network(LocalStorage.userImage.value),
+                      ),
+              ),
             ),
             const SizedBox(height: 15),
             Text(
-              _con.userName.value,
+              LocalStorage.userName.value,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 10),
             Text(
-              _con.email.value,
+              LocalStorage.userEmail.value,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextButton(
               onPressed: () => Get.toNamed(AppRoutes.editProfileScreen),
-              child: const Text("Edit profile"),
+              child: const Text(
+                "Edit profile",
+                style: TextStyle(color: AppColors.primaryColor),
+              ),
             ),
             const Divider(height: 2),
             ListTile(
@@ -48,10 +60,16 @@ class DrawerScreen extends StatelessWidget {
               selected: true,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              leading: const Icon(Icons.person),
+              leading: const Icon(
+                Icons.person,
+                color: AppColors.primaryColor,
+              ),
               title: const Text(
                 "All Members",
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             ListTile(
@@ -63,10 +81,16 @@ class DrawerScreen extends StatelessWidget {
               selected: true,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              leading: const Icon(Icons.group),
+              leading: const Icon(
+                Icons.group,
+                color: AppColors.primaryColor,
+              ),
               title: const Text(
                 "Groups",
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             ListTile(
@@ -96,10 +120,16 @@ class DrawerScreen extends StatelessWidget {
               },
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              leading: const Icon(Icons.exit_to_app),
+              leading: const Icon(
+                Icons.exit_to_app,
+                color: AppColors.primaryColor,
+              ),
               title: const Text(
                 "Logout",
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
           ],

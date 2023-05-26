@@ -13,15 +13,10 @@ class ChatMemberController extends GetxController {
   }
 
   Stream? conversationStrem;
-  RxString email = "".obs;
-  RxString userName = "".obs;
-  RxString groupName = "".obs;
   RxBool isLoading = false.obs;
 
   Future<void> getConversation(bool filter) async {
     isLoading.value = true;
-    email = LocalStorage.userEmail;
-    userName = LocalStorage.userName;
     if (filter) {
       conversationStrem =
           (await DatabaseService(uid: LocalStorage.userId.value.trim())

@@ -80,6 +80,7 @@ class RegisterController extends GetxController {
             name: "${firstName.value} ${lastName.value}",
             email: email.value,
             userID: value.user?.uid ?? "",
+            image: "",
           );
           Get.offAllNamed(AppRoutes.chatMemberScreen);
           return value.user;
@@ -87,7 +88,9 @@ class RegisterController extends GetxController {
 
         if (user != null) {
           await DatabaseService(uid: user.uid).updateUserData(
-              "${firstName.value} ${lastName.value}", email.value);
+              fullName: "${firstName.value} ${lastName.value}",
+              email: email.value,
+              profilePic: "");
         }
         isLoading.value = false;
       } on FirebaseAuthException catch (e) {
@@ -106,11 +109,11 @@ class RegisterController extends GetxController {
           idToken: (await googleSignInAccount?.authentication)?.idToken);
       firebaseAuth.signInWithCredential(oAuthCredential);
       LocalStorage.saveLocalData(
-        isLoginFlag: true,
-        name: googleSignInAccount?.displayName ?? "",
-        email: googleSignInAccount?.email ?? "",
-        userID: googleSignInAccount?.id ?? "",
-      );
+          isLoginFlag: true,
+          name: googleSignInAccount?.displayName ?? "",
+          email: googleSignInAccount?.email ?? "",
+          userID: googleSignInAccount?.id ?? "",
+          image: "");
 
       if (googleSignInAccount != null) {
         Get.offNamed(AppRoutes.chatMemberScreen);
