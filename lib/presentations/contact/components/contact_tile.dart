@@ -41,7 +41,15 @@ class ContactTile extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         trailing: isAdmin
-            ? const Text("Admin")
+            ? TextButton(
+                onPressed: () {},
+                child: Text(
+                  "Admin",
+                  style: TextStyle(
+                    color: isAdmin ? null : Colors.red,
+                  ),
+                ),
+              )
             : isGroup.value
                 ? Checkbox(
                     onChanged: onChanged,

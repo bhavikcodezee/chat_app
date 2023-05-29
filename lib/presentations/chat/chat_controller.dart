@@ -1,9 +1,11 @@
 import 'package:chat_app/model/contact_model.dart';
+import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:chat_app/utils/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatController extends GetxController {
   String admin = "";
@@ -23,6 +25,16 @@ class ChatController extends GetxController {
     }
     getMessages();
     super.onInit();
+  }
+
+  Future<void> onJoin() async {
+    await _handleCameraAndMic(Permission.camera);
+    await _handleCameraAndMic(Permission.microphone);
+    Get.toNamed(AppRoutes.pickupScreen, arguments: contactModel);
+  }
+
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    await permission.request();
   }
 
   void sendMessage() {

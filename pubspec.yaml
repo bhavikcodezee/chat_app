@@ -26,7 +26,12 @@ dependencies:
   jiffy: ^6.1.0
   image_cropper: ^4.0.1
   image_picker: ^0.8.7+5
-  
+  agora_rtc_engine: ^6.2.0
+  permission_handler: ^10.2.0
+  flutter_ringtone_player: ^3.2.0
+  wakelock: ^0.6.2
+  cached_network_image: ^3.2.3
+  connectivity_plus: ^4.0.1
 
 
 dev_dependencies:

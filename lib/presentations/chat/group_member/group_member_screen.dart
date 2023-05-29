@@ -19,7 +19,7 @@ class GroupMemberScreen extends StatelessWidget {
                 child: CircularProgressIndicator.adaptive(),
               )
             : _con.contactList.isEmpty
-                ? const Center(child: Text("No contact found"))
+                ? const Center(child: Text("No member found"))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     itemCount: _con.contactList.length,

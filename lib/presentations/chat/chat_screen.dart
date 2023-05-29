@@ -15,15 +15,34 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(title: _con.contactModel?.fullName ?? "", actions: [
-        if (_con.contactModel?.isGroup ?? false)
-          IconButton(
-            onPressed: () => Get.toNamed(AppRoutes.groupMemberScreen,
-                arguments: _con.contactModel),
-            icon: const Icon(
-              Icons.info,
-              color: AppColors.whiteColor,
-            ),
-          ),
+        _con.contactModel?.isGroup ?? false
+            ? IconButton(
+                onPressed: () => Get.toNamed(AppRoutes.groupMemberScreen,
+                    arguments: _con.contactModel),
+                icon: const Icon(
+                  Icons.info,
+                  color: AppColors.whiteColor,
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async => await _con.onJoin(),
+                    icon: const Icon(
+                      Icons.phone,
+                      color: AppColors.whiteColor,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () async => await _con.onJoin(),
+                    icon: const Icon(
+                      Icons.video_call,
+                      color: AppColors.whiteColor,
+                    ),
+                  )
+                ],
+              )
       ]),
       bottomSheet: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -82,7 +101,7 @@ class ChatScreen extends StatelessWidget {
             : snapshot.hasData
                 ? snapshot.data.docs.isEmpty
                     ? const Center(
-                        child: Text("No messages found"),
+                        child: Text("No messages available"),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.only(bottom: 100, top: 10),

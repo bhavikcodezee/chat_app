@@ -1,50 +1,65 @@
 import 'package:chat_app/model/contact_model.dart';
 import 'package:chat_app/presentations/chat_member/chat_member_controller.dart';
 import 'package:chat_app/presentations/chat_member/components/drawer_screen.dart';
+import 'package:chat_app/presentations/pickup/pickup_screen.dart';
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:chat_app/utils/local_storage.dart';
 import 'package:chat_app/widget/app_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../services/database_service.dart';
 
 class ChatMemberScreen extends StatelessWidget {
   ChatMemberScreen({super.key});
   final ChatMemberController _con = Get.put(ChatMemberController());
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _con.scaffoldKey,
-      appBar: appBar(
-        title: "Chats",
-        leading: IconButton(
-            onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
-            icon: const Icon(
-              Icons.menu,
-              color: AppColors.whiteColor,
-            )),
-      ),
-      drawer: const DrawerScreen(),
-      body: Obx(
-        () => _con.isLoading.value
-            ? const Center(
-                child: CircularProgressIndicator.adaptive(
-                  backgroundColor: Colors.white,
-                  strokeWidth: 5,
-                ),
-              )
-            : chatMembersList(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(AppRoutes.contactScreen),
-        elevation: 0,
-        backgroundColor: AppColors.accentColor,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 30,
-        ),
-      ),
+    return StreamBuilder<QuerySnapshot<Object?>>(
+      stream: DatabaseService().listenToInComingCall(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.data?.docs != null &&
+            snapshot.data!.docs.isNotEmpty) {
+          return PickUpScreen(isForOutGoing: true);
+        } else {
+          return Scaffold(
+            key: _con.scaffoldKey,
+            appBar: appBar(
+              title: "Chats",
+              leading: IconButton(
+                  onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
+                  icon: const Icon(
+                    Icons.menu,
+                    color: AppColors.whiteColor,
+                  )),
+            ),
+            drawer: const DrawerScreen(),
+            body: Obx(
+              () => _con.isLoading.value
+                  ? const Center(
+                      child: CircularProgressIndicator.adaptive(
+                        backgroundColor: Colors.white,
+                        strokeWidth: 5,
+                      ),
+                    )
+                  : chatMembersList(),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => Get.toNamed(AppRoutes.contactScreen),
+              elevation: 0,
+              backgroundColor: AppColors.accentColor,
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 

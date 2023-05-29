@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:chat_app/model/contact_model.dart';
+import 'package:chat_app/utils/local_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
@@ -9,6 +13,29 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("users");
   final CollectionReference conversationCollection =
       FirebaseFirestore.instance.collection("conversation");
+
+  final CollectionReference callsCollection =
+      FirebaseFirestore.instance.collection("call");
+
+  Stream<QuerySnapshot<Object?>> listenToInComingCall() {
+    return callsCollection
+        .where('receiver_id', isEqualTo: LocalStorage.userId.value)
+        .snapshots();
+  }
+
+  Future<void> postCallToFirestore(
+      {required ContactModel contactModel, required String channelId}) {
+    return callsCollection.doc(LocalStorage.userId.value).set({
+      "receiver_id": contactModel.uid,
+      "sender_id": LocalStorage.userId.value,
+      "sender_image": contactModel.profilepic,
+      "channel_Id": channelId
+    });
+  }
+
+  Future<void> endCurrentCall() {
+    return callsCollection.doc().delete();
+  }
 
   //SAVE/UPDATE USER DATA
   Future updateUserData({

@@ -7,6 +7,8 @@ import 'package:chat_app/presentations/chat/group_member/group_member_screen.dar
 import 'package:chat_app/presentations/chat_member/chat_member_screen.dart';
 import 'package:chat_app/presentations/contact/contact_screen.dart';
 import 'package:chat_app/presentations/edit_profile/edit_profile_screen.dart';
+import 'package:chat_app/presentations/pickup/pickup_screen.dart';
+import 'package:chat_app/presentations/video/video_screen.dart';
 import 'package:chat_app/routes/app_routes.dart';
 import 'package:get/get.dart';
 
@@ -47,6 +49,14 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.editProfileScreen,
       page: () => EditProfileScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.videoScreen,
+      page: () => VideoScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.pickupScreen,
+      page: () => PickUpScreen(isForOutGoing: false),
     ),
   ];
 }

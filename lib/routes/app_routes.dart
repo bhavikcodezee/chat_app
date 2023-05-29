@@ -8,4 +8,6 @@ abstract class AppRoutes {
   static const String contactScreen = "/CONTACT_SCREEN";
   static const String groupMemberScreen = "/GROUP_MEMBER_SCREEN";
   static const String editProfileScreen = "/EDIT_PROFILE_SCREEN";
+  static const String videoScreen = "/VIDEO_SCREEN";
+  static const String pickupScreen = "/PICKUP_SCREEN";
 }
