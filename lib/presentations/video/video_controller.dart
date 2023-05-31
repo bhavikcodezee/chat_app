@@ -1,29 +1,28 @@
 import 'dart:developer';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:chat_app/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class VideoController extends GetxController {
   final String appId = "67b3ed8c2c3f41e88fd9b768f9988cc6";
-  final String token = "968a53f68a6841f5960f99e7972d51b9";
+  final String token =
+      "007eJxTYPBrC85mmFbIG5/IYMq9sN4q5c9xbs+tl156Fisl5N44wqXAYGaeZJyaYpFslGycZmKYamGRlmKZZG5mkWZpaWGRnGwW8KospSGQkYFr20MWRgYIBPGZGSIioxgYAG0NHQg=";
   RxString channelId = "".obs;
+  RxString docId = "".obs;
   late final RtcEngine engine;
-  RxBool isJoined = false.obs;
   RxBool isMuted = false.obs;
   RxBool switchCamera = false.obs;
   RxBool isUseFlutterTexture = false.obs;
   RxBool isUseAndroidSurfaceView = false.obs;
-  Set<int> remoteUid = {};
+  RxList<int> remoteUid = <int>[].obs;
   ChannelProfileType channelProfileType =
       ChannelProfileType.channelProfileCommunication;
 
   @override
-  void onInit() {
-    if (Get.arguments != null) {
-      channelId = Get.arguments;
-      _initEngine();
-    }
+  void onInit() async {
+    await _initEngine();
     super.onInit();
   }
 
@@ -42,12 +41,10 @@ class VideoController extends GetxController {
         log('[onError] err: $err, msg: $msg');
       },
       onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-        log('[onJoinChannelSuccess] connection: ${connection.toJson()} elapsed: $elapsed');
-
-        isJoined.value = true;
+        log('==============[onJoinChannelSuccess] connection: ${connection.toJson()} elapsed: $elapsed');
       },
       onUserJoined: (RtcConnection connection, int rUid, int elapsed) {
-        log('[onUserJoined] connection: ${connection.toJson()} remoteUid: $rUid elapsed: $elapsed');
+        log('------------------------[onUserJoined] connection: ${connection.toJson()} remoteUid: $rUid elapsed: $elapsed');
         remoteUid.add(rUid);
       },
       onUserOffline:
@@ -57,12 +54,11 @@ class VideoController extends GetxController {
       },
       onLeaveChannel: (RtcConnection connection, RtcStats stats) {
         log('[onLeaveChannel] connection: ${connection.toJson()} stats: ${stats.toJson()}');
-        isJoined.value = false;
         remoteUid.clear();
       },
     ));
-
     await engine.enableVideo();
+    await joinChannel();
   }
 
   void onToggleMute() {
@@ -84,10 +80,7 @@ class VideoController extends GetxController {
 
   void onCallEnd(BuildContext context) {
     Get.back();
-  }
-
-  Future<void> leaveChannel() async {
-    await engine.leaveChannel();
+    DatabaseService().endCurrentCall(docId.value);
   }
 
   Future<void> switchCameraFn() async {

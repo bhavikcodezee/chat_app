@@ -27,10 +27,14 @@ class ChatController extends GetxController {
     super.onInit();
   }
 
-  Future<void> onJoin() async {
+  Future<void> onJoin(type) async {
     await _handleCameraAndMic(Permission.camera);
     await _handleCameraAndMic(Permission.microphone);
-    Get.toNamed(AppRoutes.pickupScreen, arguments: contactModel);
+    Get.toNamed(
+      AppRoutes.pickupScreen,
+      arguments: contactModel,
+      parameters: {"type": type},
+    );
   }
 
   Future<void> _handleCameraAndMic(Permission permission) async {

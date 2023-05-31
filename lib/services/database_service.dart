@@ -23,18 +23,32 @@ class DatabaseService {
         .snapshots();
   }
 
-  Future<void> postCallToFirestore(
-      {required ContactModel contactModel, required String channelId}) {
-    return callsCollection.doc(LocalStorage.userId.value).set({
-      "receiver_id": contactModel.uid,
-      "sender_id": LocalStorage.userId.value,
-      "sender_image": contactModel.profilepic,
-      "channel_Id": channelId
-    });
+  Stream<QuerySnapshot<Object?>> listenToAcceptCall(String docId) {
+    return callsCollection.where(docId).snapshots();
   }
 
-  Future<void> endCurrentCall() {
-    return callsCollection.doc().delete();
+  Future<String> postCallToFirestore(
+      {required ContactModel contactModel,
+      required String channelId,
+      required String type}) async {
+    DocumentReference documentReference = callsCollection.doc();
+    await documentReference.set({
+      "receiver_id": contactModel.uid,
+      "sender_id": LocalStorage.userId.value,
+      "channel_Id": channelId,
+      "doc_id": documentReference.id,
+      "connected": false,
+      "type": type
+    });
+    return documentReference.id;
+  }
+
+  Future<void> acceptCallToFirestore({required String docId}) async {
+    callsCollection.doc(docId).update({"connected": true});
+  }
+
+  Future<void> endCurrentCall(String docId) {
+    return callsCollection.doc(docId).delete();
   }
 
   //SAVE/UPDATE USER DATA

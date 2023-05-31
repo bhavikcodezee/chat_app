@@ -23,7 +23,10 @@ class ChatMemberScreen extends StatelessWidget {
         if (snapshot.hasData &&
             snapshot.data?.docs != null &&
             snapshot.data!.docs.isNotEmpty) {
-          return PickUpScreen(isForOutGoing: true);
+          return PickUpScreen(
+            isForOutGoing: true,
+            docId: snapshot.data!.docs[0]['doc_id'],
+          );
         } else {
           return Scaffold(
             key: _con.scaffoldKey,
@@ -78,7 +81,10 @@ class ChatMemberScreen extends StatelessWidget {
                           LocalStorage.userId.value.trim()
                       ? 'receiver_name'
                       : "sender_name"],
-                  uid: snapshot.data.docs[index]["sender_id"],
+                  uid: LocalStorage.userId.value ==
+                          snapshot.data.docs[index]["sender_id"]
+                      ? snapshot.data.docs[index]["receiver_id"]
+                      : snapshot.data.docs[index]["sender_id"],
                   converationId: snapshot.data.docs[index]["conversation_id"],
                   isGroup: snapshot.data.docs[index]["isGroup"],
                   memberList: snapshot.data.docs[index]["members"],
@@ -108,7 +114,7 @@ class ChatMemberScreen extends StatelessWidget {
             onTap: () => Get.toNamed(AppRoutes.contactScreen),
             child: Icon(
               Icons.add_circle,
-              color: Colors.grey[700],
+              color: AppColors.primaryColor.withOpacity(0.8),
               size: 75,
             ),
           ),

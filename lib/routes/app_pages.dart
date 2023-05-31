@@ -56,7 +56,7 @@ abstract class AppPages {
     ),
     GetPage(
       name: AppRoutes.pickupScreen,
-      page: () => PickUpScreen(isForOutGoing: false),
+      page: () => PickUpScreen(isForOutGoing: false, docId: ""),
     ),
   ];
 }

@@ -28,17 +28,18 @@ class ChatScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () async => await _con.onJoin(),
+                    onPressed: () async => await _con.onJoin("call"),
                     icon: const Icon(
                       Icons.phone,
                       color: AppColors.whiteColor,
                     ),
                   ),
                   IconButton(
-                    onPressed: () async => await _con.onJoin(),
+                    onPressed: () async => await _con.onJoin("video_call"),
                     icon: const Icon(
-                      Icons.video_call,
+                      Icons.videocam,
                       color: AppColors.whiteColor,
+                      size: 30,
                     ),
                   )
                 ],
@@ -126,7 +127,10 @@ class ChatScreen extends StatelessWidget {
                         },
                       )
                 : const Center(
-                    child: Text("No messages available"),
+                    child: CircularProgressIndicator.adaptive(
+                      backgroundColor: AppColors.accentColor,
+                      strokeWidth: 5,
+                    ),
                   );
       },
     );
