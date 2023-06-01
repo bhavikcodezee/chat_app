@@ -2,13 +2,11 @@ import 'dart:developer';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:chat_app/services/database_service.dart';
+import 'package:chat_app/utils/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class VideoController extends GetxController {
-  final String appId = "67b3ed8c2c3f41e88fd9b768f9988cc6";
-  final String token =
-      "007eJxTYPBrC85mmFbIG5/IYMq9sN4q5c9xbs+tl156Fisl5N44wqXAYGaeZJyaYpFslGycZmKYamGRlmKZZG5mkWZpaWGRnGwW8KospSGQkYFr20MWRgYIBPGZGSIioxgYAG0NHQg=";
   RxString channelId = "".obs;
   RxString docId = "".obs;
   late final RtcEngine engine;
@@ -34,7 +32,7 @@ class VideoController extends GetxController {
 
   Future<void> _initEngine() async {
     engine = createAgoraRtcEngine();
-    await engine.initialize(RtcEngineContext(appId: appId));
+    await engine.initialize(const RtcEngineContext(appId: AppConfig.appId));
 
     engine.registerEventHandler(RtcEngineEventHandler(
       onError: (ErrorCodeType err, String msg) {
@@ -68,7 +66,7 @@ class VideoController extends GetxController {
 
   Future<void> joinChannel() async {
     await engine.joinChannel(
-      token: token,
+      token: AppConfig.token,
       channelId: channelId.value,
       uid: 0,
       options: ChannelMediaOptions(

@@ -30,24 +30,32 @@ class DatabaseService {
   Future<String> postCallToFirestore(
       {required ContactModel contactModel,
       required String channelId,
+      required String callStatus,
       required String type}) async {
     DocumentReference documentReference = callsCollection.doc();
     await documentReference.set({
       "receiver_id": contactModel.uid,
       "sender_id": LocalStorage.userId.value,
+      "sender_name": LocalStorage.userName.value,
       "channel_Id": channelId,
       "doc_id": documentReference.id,
       "connected": false,
-      "type": type
+      "type": type,
+      "call_status": callStatus,
     });
     return documentReference.id;
   }
 
   Future<void> acceptCallToFirestore({required String docId}) async {
-    callsCollection.doc(docId).update({"connected": true});
+    callsCollection
+        .doc(docId)
+        .update({"connected": true, "call_status": "Accept"});
   }
 
   Future<void> endCurrentCall(String docId) {
+    callsCollection
+        .doc(docId)
+        .update({"connected": true, "call_status": "Reject"});
     return callsCollection.doc(docId).delete();
   }
 

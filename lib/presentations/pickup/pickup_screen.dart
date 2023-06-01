@@ -38,6 +38,7 @@ class PickUpScreen extends StatelessWidget {
               Get.put(VideoController()).docId.value =
                   docId.isEmpty ? _con.docID.value : docId;
               _con.timer?.cancel();
+              _con.callTime.value = 0;
               return VideoScreen();
             } else {
               if (snapshot.data?.docs != null &&
@@ -46,9 +47,16 @@ class PickUpScreen extends StatelessWidget {
                   snapshot.data!.docs[0]['type'] == "call") {
                 _con.type.value = snapshot.data!.docs[0]['type'];
                 _con.channelId.value = snapshot.data!.docs[0]['channel_Id'];
-                _con.startCallTime();
+                // if (_con.callTime.value == 0) {
+                //   _con.startCallTime();
+                // }
+                //TODO Timer issue remaining
+                if (_con.engine == null) {
+                  _con.initEngine();
+                }
               } else {
                 _con.timer?.cancel();
+                _con.callTime.value = 0;
               }
               return Container(
                 alignment: Alignment.center,
@@ -83,7 +91,12 @@ class PickUpScreen extends StatelessWidget {
                     _getImageUrlWidget(),
                     const SizedBox(height: 30),
                     Text(
-                      _con.contactModel?.fullName ?? "",
+                      isForOutGoing
+                          ? (snapshot.data?.docs != null &&
+                                  snapshot.data!.docs.isNotEmpty)
+                              ? snapshot.data!.docs[0]['sender_name']
+                              : ""
+                          : _con.contactModel?.fullName ?? "",
                       style: const TextStyle(
                           color: AppColors.whiteColor,
                           fontSize: 20,
@@ -93,10 +106,59 @@ class PickUpScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        if (snapshot.data?.docs != null &&
+                            snapshot.data!.docs.isNotEmpty &&
+                            snapshot.data!.docs[0]['connected'] &&
+                            snapshot.data!.docs[0]['type'] == "call")
+                          Obx(
+                            () => RawMaterialButton(
+                              onPressed: _con.onToggleMute,
+                              shape: const CircleBorder(),
+                              elevation: 2.0,
+                              fillColor: _con.isMuted.value
+                                  ? Colors.blueAccent
+                                  : Colors.white,
+                              padding: const EdgeInsets.all(12.0),
+                              child: Icon(
+                                _con.isMuted.value ? Icons.mic_off : Icons.mic,
+                                color: _con.isMuted.value
+                                    ? Colors.white
+                                    : Colors.blueAccent,
+                                size: 20.0,
+                              ),
+                            ),
+                          ),
                         _callingButtonWidget(context, false),
-                        isForOutGoing
-                            ? _callingButtonWidget(context, true)
-                            : const SizedBox(),
+                        if (snapshot.data?.docs != null &&
+                            snapshot.data!.docs.isNotEmpty &&
+                            !snapshot.data!.docs[0]['connected'])
+                          isForOutGoing
+                              ? _callingButtonWidget(context, true)
+                              : const SizedBox(),
+                        if (snapshot.data?.docs != null &&
+                            snapshot.data!.docs.isNotEmpty &&
+                            snapshot.data!.docs[0]['connected'] &&
+                            snapshot.data!.docs[0]['type'] == "call")
+                          Obx(
+                            () => RawMaterialButton(
+                              onPressed: _con.switchSpeakerphone,
+                              shape: const CircleBorder(),
+                              elevation: 2.0,
+                              fillColor: _con.enableSpeakerphone.value
+                                  ? Colors.blueAccent
+                                  : Colors.white,
+                              padding: const EdgeInsets.all(12.0),
+                              child: Icon(
+                                _con.enableSpeakerphone.value
+                                    ? Icons.volume_up
+                                    : Icons.volume_mute,
+                                color: _con.enableSpeakerphone.value
+                                    ? Colors.white
+                                    : Colors.blueAccent,
+                                size: 20.0,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],
