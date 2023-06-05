@@ -54,9 +54,10 @@ class PickUpScreen extends StatelessWidget {
                 if (_con.engine == null) {
                   _con.initEngine();
                 }
-              } else {
-                _con.timer?.cancel();
-                _con.callTime.value = 0;
+              } else if (!isForOutGoing &&
+                  snapshot.data?.docs != null &&
+                  snapshot.data!.docs.isEmpty) {
+                _con.endCall();
               }
               return Container(
                 alignment: Alignment.center,
@@ -66,8 +67,8 @@ class PickUpScreen extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     stops: const [0.2, 0.6],
                     colors: [
+                      AppColors.primaryColor.withOpacity(0.8),
                       AppColors.accentColor,
-                      AppColors.primaryColor.withOpacity(0.8)
                     ],
                   ),
                 ),
@@ -195,12 +196,12 @@ class PickUpScreen extends StatelessWidget {
       ));
 
   _callingButtonWidget(BuildContext context, bool isCall) => RawMaterialButton(
-        onPressed: () {
+        onPressed: () async {
           if (isCall) {
             _con.timer?.cancel();
-            pickUpCallPressed(context);
+            await pickUpCallPressed(context);
           } else {
-            _con.endCall(docId.isEmpty ? _con.docID.value : docId);
+            await _con.endCall(docId: docId.isEmpty ? _con.docID.value : docId);
           }
         },
         shape: const CircleBorder(),
@@ -214,7 +215,7 @@ class PickUpScreen extends StatelessWidget {
         ),
       );
 
-  void pickUpCallPressed(context) async {
+  Future<void> pickUpCallPressed(context) async {
     if (await Permission.camera.request().isGranted) {
       if (await Permission.microphone.request().isGranted) {
         FlutterRingtonePlayer.stop();

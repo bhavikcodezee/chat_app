@@ -16,7 +16,6 @@ class PickUpcontroller extends GetxController {
   RxString docID = "".obs;
   RxString type = "".obs;
   RxInt callTime = 0.obs;
-  RxString callStatus = "Pending".obs;
   //---------------
   RtcEngine? engine;
   RxBool isMuted = false.obs;
@@ -35,7 +34,6 @@ class PickUpcontroller extends GetxController {
         contactModel: contactModel!,
         channelId: channelId.value,
         type: type.value,
-        callStatus: callStatus.value,
       );
     }
     await Wakelock.enable();
@@ -48,7 +46,7 @@ class PickUpcontroller extends GetxController {
     if (type.value == "video_call") {
       Timer(
         const Duration(seconds: 60),
-        () => endCall(docID.value),
+        () => endCall(docId: docID.value),
       );
     }
     super.onInit();
@@ -61,17 +59,17 @@ class PickUpcontroller extends GetxController {
     super.onClose();
   }
 
-  Future<void> endCall(String docId) async {
+  Future<void> endCall({String? docId}) async {
     if (type.value == "call") {
       await _dispose();
     }
     timer?.cancel();
     callTime.value = 0;
-
     await Wakelock.disable();
     await FlutterRingtonePlayer.stop();
-    await DatabaseService().endCurrentCall(docId);
-    callStatus.value = "reject";
+    if (docId != null) {
+      await DatabaseService().endCurrentCall(docId);
+    }
     Get.back();
   }
 

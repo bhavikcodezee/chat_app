@@ -30,7 +30,6 @@ class DatabaseService {
   Future<String> postCallToFirestore(
       {required ContactModel contactModel,
       required String channelId,
-      required String callStatus,
       required String type}) async {
     DocumentReference documentReference = callsCollection.doc();
     await documentReference.set({
@@ -41,21 +40,15 @@ class DatabaseService {
       "doc_id": documentReference.id,
       "connected": false,
       "type": type,
-      "call_status": callStatus,
     });
     return documentReference.id;
   }
 
   Future<void> acceptCallToFirestore({required String docId}) async {
-    callsCollection
-        .doc(docId)
-        .update({"connected": true, "call_status": "Accept"});
+    callsCollection.doc(docId).update({"connected": true});
   }
 
   Future<void> endCurrentCall(String docId) {
-    callsCollection
-        .doc(docId)
-        .update({"connected": true, "call_status": "Reject"});
     return callsCollection.doc(docId).delete();
   }
 
